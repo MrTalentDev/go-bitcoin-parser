@@ -1,0 +1,548 @@
+package main
+
+import (
+	"bytes"
+	"testing"
+)
+
+var p2pkTestBytes = []byte{
+	0x41,0x04,0x96,0xb5,0x38,0xe8,0x53,0x51,
+	0x9c,0x72,0x6a,0x2c,0x91,0xe6,0x1e,0xc1,
+	0x16,0x00,0xae,0x13,0x90,0x81,0x3a,0x62,
+	0x7c,0x66,0xfb,0x8b,0xe7,0x94,0x7b,0xe6,
+	0x3c,0x52,0xda,0x75,0x89,0x37,0x95,0x15,
+	0xd4,0xe0,0xa6,0x04,0xf8,0x14,0x17,0x81,
+	0xe6,0x22,0x94,0x72,0x11,0x66,0xbf,0x62,
+	0x1e,0x73,0xa8,0x2c,0xbf,0x23,0x42,0xc8,
+	0x58,0xee,0xac,
+}
+
+var p2pkTest = &PKScript{
+	PkScript:  []byte{
+		0x41,0x04,0x96,0xb5,0x38,0xe8,0x53,0x51,
+		0x9c,0x72,0x6a,0x2c,0x91,0xe6,0x1e,0xc1,
+		0x16,0x00,0xae,0x13,0x90,0x81,0x3a,0x62,
+		0x7c,0x66,0xfb,0x8b,0xe7,0x94,0x7b,0xe6,
+		0x3c,0x52,0xda,0x75,0x89,0x37,0x95,0x15,
+		0xd4,0xe0,0xa6,0x04,0xf8,0x14,0x17,0x81,
+		0xe6,0x22,0x94,0x72,0x11,0x66,0xbf,0x62,
+		0x1e,0x73,0xa8,0x2c,0xbf,0x23,0x42,0xc8,
+		0x58,0xee,0xac,
+	},
+	Pops: []*parsedOpcode{
+		{
+			Opcode: &opcodeArray[OP_DATA_65],
+			Data: []byte{
+				0x04,0x96,0xb5,0x38,0xe8,0x53,0x51,0x9c,
+				0x72,0x6a,0x2c,0x91,0xe6,0x1e,0xc1,0x16,
+				0x00,0xae,0x13,0x90,0x81,0x3a,0x62,0x7c,
+				0x66,0xfb,0x8b,0xe7,0x94,0x7b,0xe6,0x3c,
+				0x52,0xda,0x75,0x89,0x37,0x95,0x15,0xd4,
+				0xe0,0xa6,0x04,0xf8,0x14,0x17,0x81,0xe6,
+				0x22,0x94,0x72,0x11,0x66,0xbf,0x62,0x1e,
+				0x73,0xa8,0x2c,0xbf,0x23,0x42,0xc8,0x58,
+				0xee,
+			},
+		},
+		{
+			Opcode: &opcodeArray[OP_CHECKSIG],
+			Data: []byte{},
+		},
+	},
+	Stype: PubKey,
+	Addresses: []string{"12c6DSiU4Rq3P4ZxziKxzrL5LmMBrzjrJX"},
+}
+
+var p2pkhTestBytes = []byte{
+	0x76,0xa9,0x14,0x12,0xab,0x8d,0xc5,0x88,
+	0xca,0x9d,0x57,0x87,0xdd,0xe7,0xeb,0x29,
+	0x56,0x9d,0xa6,0x3c,0x3a,0x23,0x8c,0x88,
+	0xac,
+}
+
+var p2pkhTest = &PKScript{
+	PkScript:  p2pkhTestBytes,
+	Pops:      []*parsedOpcode{
+		{
+			Opcode: &opcodeArray[OP_DUP],
+			Data: nil,
+		},
+		{
+			Opcode: &opcodeArray[OP_HASH160],
+			Data: nil,
+		},
+		{
+			Opcode: &opcodeArray[OP_DATA_20],
+			Data: []byte{
+				0x12,0xab,0x8d,0xc5,0x88,0xca,0x9d,0x57,
+				0x87,0xdd,0xe7,0xeb,0x29,0x56,0x9d,0xa6,
+				0x3c,0x3a,0x23,0x8c,
+			},
+		},
+		{
+			Opcode: &opcodeArray[OP_EQUALVERIFY],
+			Data: nil,
+		},
+		{
+			Opcode: &opcodeArray[OP_CHECKSIG],
+			Data: nil,
+		},
+	},
+	Stype:     PubKeyHash,
+	Addresses: []string{
+		"12higDjoCCNXSA95xZMWUdPvXNmkAduhWv",
+	},
+}
+
+var p2msTestBytes = []byte{
+	0x51,0x41,0x04,0xcc,0x71,0xeb,0x30,0xd6,
+	0x53,0xc0,0xc3,0x16,0x39,0x90,0xc4,0x7b,
+	0x97,0x6f,0x3f,0xb3,0xf3,0x7c,0xcc,0xdc,
+	0xbe,0xdb,0x16,0x9a,0x1d,0xfe,0xf5,0x8b,
+	0xbf,0xbf,0xaf,0xf7,0xd8,0xa4,0x73,0xe7,
+	0xe2,0xe6,0xd3,0x17,0xb8,0x7b,0xaf,0xe8,
+	0xbd,0xe9,0x7e,0x3c,0xf8,0xf0,0x65,0xde,
+	0xc0,0x22,0xb5,0x1d,0x11,0xfc,0xdd,0x0d,
+	0x34,0x8a,0xc4,0x41,0x04,0x61,0xcb,0xdc,
+	0xc5,0x40,0x9f,0xb4,0xb4,0xd4,0x2b,0x51,
+	0xd3,0x33,0x81,0x35,0x4d,0x80,0xe5,0x50,
+	0x07,0x8c,0xb5,0x32,0xa3,0x4b,0xfa,0x2f,
+	0xcf,0xde,0xb7,0xd7,0x65,0x19,0xae,0xcc,
+	0x62,0x77,0x0f,0x5b,0x0e,0x4e,0xf8,0x55,
+	0x19,0x46,0xd8,0xa5,0x40,0x91,0x1a,0xbe,
+	0x3e,0x78,0x54,0xa2,0x6f,0x39,0xf5,0x8b,
+	0x25,0xc1,0x53,0x42,0xaf,0x52,0xae,
+}
+
+var p2msTest = &PKScript{
+	PkScript:  p2msTestBytes,
+	Pops:      []*parsedOpcode{
+		{
+			Opcode: &opcodeArray[OP_1],
+			Data:   nil,
+		},
+		{
+			Opcode: &opcodeArray[OP_DATA_65],
+			Data: []byte{
+				0x04,0xcc,0x71,0xeb,0x30,0xd6,0x53,0xc0,
+				0xc3,0x16,0x39,0x90,0xc4,0x7b,0x97,0x6f,
+				0x3f,0xb3,0xf3,0x7c,0xcc,0xdc,0xbe,0xdb,
+				0x16,0x9a,0x1d,0xfe,0xf5,0x8b,0xbf,0xbf,
+				0xaf,0xf7,0xd8,0xa4,0x73,0xe7,0xe2,0xe6,
+				0xd3,0x17,0xb8,0x7b,0xaf,0xe8,0xbd,0xe9,
+				0x7e,0x3c,0xf8,0xf0,0x65,0xde,0xc0,0x22,
+				0xb5,0x1d,0x11,0xfc,0xdd,0x0d,0x34,0x8a,
+				0xc4,
+			},
+		},
+		{
+			Opcode: &opcodeArray[OP_DATA_65],
+			Data: []byte{
+				0x04,0x61,0xcb,0xdc,0xc5,0x40,0x9f,0xb4,
+				0xb4,0xd4,0x2b,0x51,0xd3,0x33,0x81,0x35,
+				0x4d,0x80,0xe5,0x50,0x07,0x8c,0xb5,0x32,
+				0xa3,0x4b,0xfa,0x2f,0xcf,0xde,0xb7,0xd7,
+				0x65,0x19,0xae,0xcc,0x62,0x77,0x0f,0x5b,
+				0x0e,0x4e,0xf8,0x55,0x19,0x46,0xd8,0xa5,
+				0x40,0x91,0x1a,0xbe,0x3e,0x78,0x54,0xa2,
+				0x6f,0x39,0xf5,0x8b,0x25,0xc1,0x53,0x42,
+				0xaf,
+			},
+		},
+		{
+			Opcode:	&opcodeArray[OP_2],
+			Data: 	nil,
+		},
+		{
+			Opcode: &opcodeArray[OP_CHECKMULTISIG],
+			Data:	nil,
+		},
+	},
+	Stype:     Multisig,
+	Addresses: []string{
+		"1AJbsFZ64EpEfS5UAjAfcUG8pH8Jn3rn1F",
+		"1A8JiWcwvpY7tAopUkSnGuEYHmzGYfZPiq",
+	},
+}
+
+var p2shTestBytes = []byte{
+	0xa9,0x14,0x74,0x82,0x84,0x39,0x0f,0x9e,
+	0x26,0x3a,0x4b,0x76,0x6a,0x75,0xd0,0x63,
+	0x3c,0x50,0x42,0x6e,0xb8,0x75,0x87,
+}
+
+var p2shTest = &PKScript{
+	PkScript:  p2shTestBytes,
+	Pops:      []*parsedOpcode{
+		{
+			Opcode: &opcodeArray[OP_HASH160],
+			Data: nil,
+		},
+		{
+			Opcode: &opcodeArray[OP_DATA_20],
+			Data: []byte{
+				0x74,0x82,0x84,0x39,0x0f,0x9e,0x26,0x3a,
+				0x4b,0x76,0x6a,0x75,0xd0,0x63,0x3c,0x50,
+				0x42,0x6e,0xb8,0x75,
+			},
+		},
+		{
+			Opcode: &opcodeArray[OP_EQUAL],
+			Data: nil,
+		},
+	},
+	Stype:     ScriptHash,
+	Addresses: []string{
+		"3CK4fEwbMP7heJarmU4eqA3sMbVJyEnU3V",
+	},
+}
+
+var p2wpkhTestBytes = []byte{
+	0x00,0x14,0x52,0x15,0x83,0x08,0xca,0x2e, 
+	0x51,0x49,0xd9,0x39,0x73,0x10,0xec,0x1f, 
+	0xe2,0xa4,0xf8,0x8a,0xfb,0x07,
+}
+
+var p2wpkhTest = &PKScript{
+	PkScript:  p2wpkhTestBytes,
+	Pops:      []*parsedOpcode{
+		{
+			Opcode: &opcodeArray[OP_0],
+			Data:	nil,
+		},
+		{
+			Opcode: &opcodeArray[OP_DATA_20],
+			Data: []byte{
+				0x52,0x15,0x83,0x08,0xca,0x2e,0x51,0x49,
+				0xd9,0x39,0x73,0x10,0xec,0x1f,0xe2,0xa4,
+				0xf8,0x8a,0xfb,0x07,
+			},
+		},
+	},
+	Stype:     WitnessPubKeyHash,
+	Addresses: []string{
+		"bc1q2g2cxzx29eg5nkfewvgwc8lz5nug47c8ta5ene",
+	},
+}
+
+var p2wshTestBytes = []byte{
+	0x00,0x20,0x70,0x1a,0x8d,0x40,0x1c,0x84,
+	0xfb,0x13,0xe6,0xba,0xf1,0x69,0xd5,0x96,
+	0x84,0xe1,0x7a,0xbd,0x9f,0xa2,0x16,0xc8,
+	0xcc,0x5b,0x9f,0xc6,0x3d,0x62,0x2f,0xf8,
+	0xc5,0x8d,
+}
+
+
+var p2wshTest = &PKScript{
+	PkScript:  p2wshTestBytes,
+	Pops:      []*parsedOpcode{
+		{
+			Opcode: &opcodeArray[OP_0],
+			Data:	nil,
+		},
+		{
+			Opcode: &opcodeArray[OP_DATA_32],
+			Data:	[]byte{
+				0x70,0x1a,0x8d,0x40,0x1c,0x84,0xfb,0x13,
+				0xe6,0xba,0xf1,0x69,0xd5,0x96,0x84,0xe1,
+				0x7a,0xbd,0x9f,0xa2,0x16,0xc8,0xcc,0x5b,
+				0x9f,0xc6,0x3d,0x62,0x2f,0xf8,0xc5,0x8d,
+			},
+		},
+	},
+	Stype:     WitnessScriptHash,
+	Addresses: []string{
+		"bc1qwqdg6squsna38e46795at95yu9atm8azzmyvckulcc7kytlcckxswvvzej",
+	},
+}
+
+var segwitToPubKeyHashTest = []struct{
+	addr string
+	hrp  string
+	witver []byte
+	witprog []byte
+}{
+	{
+		addr:"bc1pw508d6qejxtdg4y5r3zarvary0c5xw7kw508d6qejxtdg4y5r3zarvary0c5xw7k7grplx",
+		hrp: "bc",
+		witver: []byte{0x01},
+		witprog:[]byte{
+			0x75,0x1e,0x76,0xe8,0x19,0x91,
+			0x96,0xd4,0x54,0x94,0x1c,0x45,0xd1,0xb3,
+			0xa3,0x23,0xf1,0x43,0x3b,0xd6,0x75,0x1e,
+			0x76,0xe8,0x19,0x91,0x96,0xd4,0x54,0x94,
+			0x1c,0x45,0xd1,0xb3,0xa3,0x23,0xf1,0x43,
+			0x3b,0xd6,
+		},
+	},
+	{
+		addr:"bc1zw508d6qejxtdg4y5r3zarvaryvg6kdaj",
+		hrp: "bc",
+		witver: []byte{0x02},
+		witprog: []byte{
+			0x75,0x1e,0x76,0xe8,0x19,0x91,
+			0x96,0xd4,0x54,0x94,0x1c,0x45,0xd1,0xb3,
+			0xa3,0x23,
+		},
+	},
+	{
+		addr:"bc1q2g2cxzx29eg5nkfewvgwc8lz5nug47c8ta5ene",
+		hrp: "bc",
+		witver: []byte{0x00},
+		witprog: []byte{
+			0x52,0x15,0x83,0x08,0xca,0x2e,0x51,0x49,
+			0xd9,0x39,0x73,0x10,0xec,0x1f,0xe2,0xa4,
+			0xf8,0x8a,0xfb,0x07,
+		},
+	},
+}
+
+func TestParseScript(t *testing.T) {
+	//p2pk
+	p2pkPops, err := ParseScript(p2pkTestBytes)
+	if err != nil {
+		t.Errorf("parse p2pk script error: %s", err)
+	}
+	CompareParsedOpCodes(p2pkPops, p2pkTest.Pops, t)
+
+	//p2pkh
+	p2pkhPops, err := ParseScript(p2pkhTestBytes)
+	if err != nil {
+		t.Errorf("parse p2pkh script error: %s", err)
+	}
+	CompareParsedOpCodes(p2pkhPops, p2pkhTest.Pops, t)
+
+	//p2ms
+	p2msPops, err := ParseScript(p2msTestBytes)
+	if err != nil {
+		t.Errorf("parse p2ms script error: %s", err)
+	}
+	CompareParsedOpCodes(p2msPops, p2msTest.Pops, t)
+
+	//p2sh
+	p2shPops, err := ParseScript(p2shTestBytes)
+	if err != nil {
+		t.Errorf("parse p2sh script error: %s", err)
+	}
+	CompareParsedOpCodes(p2shPops, p2shTest.Pops, t)
+
+	//p2wpkh
+	p2wpkhPops, err := ParseScript(p2wpkhTestBytes)
+	if err != nil {
+		t.Errorf("parse p2wpkh script error: %s", err)
+	}
+	CompareParsedOpCodes(p2wpkhPops, p2wpkhTest.Pops, t)
+
+	//p2wsh
+	p2wshPops, err := ParseScript(p2wshTestBytes)
+	if err != nil {
+		t.Errorf("parse p2wsh script error: %s", err)
+	}
+	CompareParsedOpCodes(p2wshPops, p2wshTest.Pops, t)
+}
+
+func TestParsePubKey(t *testing.T) {
+	// p2pk
+	p2pkPubkey, err := ParsePubKey(p2pkTest.Pops,PubKey)
+	if err != nil {
+		t.Errorf("TestParsePubKey error: %s", err)
+	}
+	if bytes.Compare(p2pkPubkey[0], p2pkTest.Pops[0].Data) != 0 {
+		t.Errorf("pubkey is not correct, we got: %x, but answer is: %x", p2pkPubkey[0], p2pkTest.Pops[0].Data)
+	}
+
+	// p2pkh
+	p2pkhPubkey, err := ParsePubKey(p2pkhTest.Pops, PubKeyHash)
+
+	if err != nil {
+		t.Errorf("TestParsePubKey error: %s", err)
+	}
+	if bytes.Compare(p2pkhPubkey[0], p2pkhTest.Pops[2].Data) != 0 {
+		t.Errorf("pubkey is not correct, we got: %x, but answer is: %x", p2pkPubkey[0], p2pkTest.Pops[0].Data)
+	}
+
+	//p2ms
+	p2msPubkey, err := ParsePubKey(p2msTest.Pops, Multisig)
+	if err != nil {
+		t.Errorf("TestParsePubKey error: %s", err)
+	}
+	for i := 0; i< len(p2msPubkey); i++ {
+		if bytes.Compare(p2msPubkey[i], p2msTest.Pops[i+1].Data) != 0 {
+			t.Errorf("pubkey is not correct, we got: %x, but answer is: %x", p2pkPubkey[i], p2pkTest.Pops[i+1].Data)
+		}
+	}
+
+	//p2sh
+	p2shPubkey, err := ParsePubKey(p2shTest.Pops, ScriptHash)
+	if err != nil {
+		t.Errorf("TestParsePubKey error: %s", err)
+	}
+	if bytes.Compare(p2shPubkey[0], p2shTest.Pops[1].Data) != 0 {
+		t.Errorf("pubkey is not correct, we got: %x, but answer is: %x", p2pkPubkey[0], p2pkTest.Pops[0].Data)
+	}
+
+	//p2wpkh
+	p2wpkhPubkey, err := ParsePubKey(p2wpkhTest.Pops, WitnessPubKeyHash)
+
+	if err != nil {
+		t.Errorf("TestParsePubKey error: %s", err)
+	}
+	if bytes.Compare(p2wpkhPubkey[0], p2wpkhTest.Pops[1].Data) != 0 {
+		t.Errorf("pubkey is not correct, we got: %x, but answer is: %x", p2wpkhPubkey[0], p2wpkhTest.Pops[1].Data)
+	}
+
+	//p2wsh
+	p2wshPubkey, err := ParsePubKey(p2wshTest.Pops, WitnessScriptHash)
+	if err != nil {
+		t.Errorf("TestParsePubKey error: %s", err)
+	}
+	if bytes.Compare(p2wshPubkey[0], p2wshTest.Pops[1].Data) != 0 {
+		t.Errorf("pubkey is not correct, we got: %x, but answer is: %x", p2wshPubkey[0], p2wshTest.Pops[1].Data)
+	}
+
+}
+
+func TestIsPubKey(t *testing.T) {
+	//p2pk
+	ip2pk := IsPubKey(p2pkTest.Pops)
+	if ip2pk != true {
+		t.Errorf("TestIsPubKey is not correct ")
+	}
+}
+
+func TestIsPubHash(t *testing.T){
+	//p2pkh
+	ip2pkh := isPubkeyHash(p2pkhTest.Pops)
+	if ip2pkh != true {
+		t.Errorf("isPubkeyHash is not correct ")
+	}
+}
+
+func TestIsMultiSig(t *testing.T){
+	//p2ms
+	ip2ms := isMultiSig(p2msTest.Pops)
+	if ip2ms != true {
+		t.Errorf("isMultiSig is not correct ")
+	}
+}
+
+func TestIsScriptHash(t *testing.T){
+	//p2sh
+	ip2sh := isScriptHash(p2shTest.Pops)
+	if ip2sh != true {
+		t.Errorf("isScriptHash is not correct ")
+	}
+}
+
+func TestIsWitnessPubKeyHash(t *testing.T){
+	//pswpkh
+	ip2wpkh := isWitnessPubKeyHash(p2wpkhTest.Pops)
+	if ip2wpkh != true {
+		t.Errorf("isWitnessPubKeyHash is not correct ")
+	}
+}
+
+func TestIsWitnessScriptHash(t *testing.T){
+	//p2wsh
+	ip2wsh := isWitnessScriptHash(p2wshTest.Pops)
+	if ip2wsh != true {
+		t.Errorf("isWitnessScriptHash is not correct ")
+	}
+}
+
+func TestDeserializePKScript(t *testing.T) {
+	// p2pk test
+	p2pk, err := DeserializePKScript(p2pkTestBytes, &MainnetParams)
+	if err != nil {
+		t.Errorf("deserialize p2pk error: %s", err)
+	}
+	ComparePKScript(p2pk, p2pkTest, t)
+
+	// p2pkh test
+	p2pkh, err := DeserializePKScript(p2pkhTestBytes, &MainnetParams)
+	if err != nil {
+		t.Errorf("deserialize p2pkh error: %s", err)
+	}
+	ComparePKScript(p2pkh, p2pkhTest, t)
+
+	//p2ms test
+	p2ms, err := DeserializePKScript(p2msTestBytes, &MainnetParams)
+	if err != nil {
+		t.Errorf("deserialize p2ms error: %s", err)
+	}
+	ComparePKScript(p2ms, p2msTest, t)
+
+	//p2sh test
+	p2sh, err := DeserializePKScript(p2shTestBytes, &MainnetParams)
+	if err != nil {
+		t.Errorf("deserialize p2sh error: %s", err)
+	}
+	ComparePKScript(p2sh, p2shTest, t)
+
+	//p2wpkh test
+	p2wpkh, err := DeserializePKScript(p2wpkhTestBytes, &MainnetParams)
+	if err != nil {
+		t.Errorf("deserialize p2wpkh error: %s", err)
+	}
+	ComparePKScript(p2wpkh, p2wpkhTest, t)
+
+	//p2wsh test
+	p2wsh, err := DeserializePKScript(p2wshTestBytes, &MainnetParams)
+	if err != nil {
+		t.Errorf("deserialize p2wsh error: %s", err)
+	}
+	ComparePKScript(p2wsh, p2wshTest, t)
+
+}
+
+func TestSegwitAddrToPublicKeyHash(t *testing.T) {
+	for _, test := range segwitToPubKeyHashTest {
+		ver, pkh, err := SegwitAddrToPublicKeyHash(test.addr)
+		if err != nil {
+			t.Errorf("TestSegwitAddrToPublicKeyHash error: %s", err)
+		}
+		if ver != test.witver[0] {
+			t.Errorf("version is not correct, we got: %d, but answer is: %d",ver, test.witver[0])
+		}
+		if bytes.Compare(pkh, test.witprog) != 0 {
+			t.Errorf("public key hash is not correct, we got: %x, but answer is; %x",pkh,test.witprog)
+		}
+	}
+}
+
+func ComparePKScript(got *PKScript, ans *PKScript, t *testing.T) {
+	if len(got.Addresses) != len(ans.Addresses) {
+		t.Errorf("adddresses length are not correct, we got: %d, but answer is: %d", len(got.Addresses), len(ans.Addresses))
+	}
+	for i:=0 ; i<len(got.Addresses); i++ {
+		if got.Addresses[i] != ans.Addresses[i] {
+			t.Errorf("addresses %d is not correct, we got: %s, but answer is: %s", i ,got.Addresses[i], ans.Addresses[i])
+		}
+	}
+	if len(got.Pops) != len(ans.Pops) {
+		t.Errorf("pops length are not correct, we got: %d, but answer is: %d", len(got.Pops), len(ans.Pops))
+	}
+	CompareParsedOpCodes(got.Pops, ans.Pops, t)
+	if got.Stype != ans.Stype {
+		t.Errorf("script type is not correct, we got: %d, but answer is: %d", got.Stype, ans.Stype)
+	}
+	if bytes.Compare(got.PkScript, ans.PkScript) != 0 {
+		t.Errorf("pkScript is not correct, we got: %x, but answer is: %x", got.PkScript, ans.PkScript)
+	}
+}
+
+func CompareParsedOpCodes(got []*parsedOpcode, ans []*parsedOpcode, t *testing.T){
+	if len(got) != len(ans) {
+		t.Errorf("pops length are not correct, we got: %d, but answer is: %d", len(got), len(ans))
+	}
+	for i:=0; i<len(got); i++ {
+		if got[i].Opcode != ans[i].Opcode {
+			t.Errorf("opcode are not correct, we got: %s, but answer is: %s", got[i].Opcode.Name, ans[i].Opcode.Name)
+		}
+		if bytes.Compare(got[i].Data, ans[i].Data) != 0 {
+			t.Errorf("data are not correct, we got: %x, but answer is: %x", got[i].Data, ans[i].Data)
+		}
+	}
+}
+
