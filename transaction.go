@@ -22,7 +22,7 @@ type Transaction struct {
 
 
 
-func DesserializeTransaction(input []byte, network *Params) (*Transaction, int, error) {
+func DeserializeTransaction(input []byte, network *Params) (*Transaction, int, error) {
 	var witness []*Witness
 	sumSize := 0
 	witnessEncodeBytesSize := 0

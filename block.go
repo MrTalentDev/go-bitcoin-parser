@@ -24,7 +24,7 @@ func DeserializeBlock(input []byte, network *Params) (*Block, error) {
 	_ , input= CutBytes(input, txnCountSize)
 	var txns []*Transaction
 	for i, size := 0, 0; i <int(txnCount) ; i++ {
-		txn, txnSize, err := DesserializeTransaction(input[size:], network)
+		txn, txnSize, err := DeserializeTransaction(input[size:], network)
 		if err != nil {
 			return nil, err
 		}

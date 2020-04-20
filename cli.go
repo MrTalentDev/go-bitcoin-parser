@@ -334,7 +334,7 @@ func rawToPrintTransaction(raw string, params *Params){
 	if err != nil {
 		fmt.Printf("raw string to bytes error: %s\n", err)
 	}
-	tx, _, err := DesserializeTransaction(txb, params)
+	tx, _, err := DeserializeTransaction(txb, params)
 	if err != nil {
 		fmt.Printf("raw transfer to transaction happened error: %s\n", err)
 	}

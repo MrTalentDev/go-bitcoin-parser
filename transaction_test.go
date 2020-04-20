@@ -123,8 +123,8 @@ var (
 
 
 )
-func TestDesserializeTransaction(t *testing.T) {
-	tx, _, err := DesserializeTransaction(transactionTestBytes, &MainnetParams)
+func TestDeserializeTransaction(t *testing.T) {
+	tx, _, err := DeserializeTransaction(transactionTestBytes, &MainnetParams)
 	if err != nil {
 		t.Errorf("TestDesserializeTransaction error: %s", err)
 	}
